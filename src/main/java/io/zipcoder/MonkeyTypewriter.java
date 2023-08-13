@@ -1,7 +1,7 @@
 package io.zipcoder;
 
 public class MonkeyTypewriter {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         String introduction = "It was the best of times,\n" +
                 "it was the blurst of times,\n" +
                 "it was the age of wisdom,\n" +
@@ -20,19 +20,47 @@ public class MonkeyTypewriter {
                 "its noisiest authorities insisted on its being received, for good or for\n" +
                 "evil, in the superlative degree of comparison only.";
 
-        // Do all of the Monkey / Thread building here
-        // For each Copier(one safe and one unsafe), create and start 5 monkeys copying the introduction to
-        // A Tale Of Two Cities.
-
-
-        // This wait is here because main is still a thread and we want the main method to print the finished copies
-        // after enough time has passed.
-        try {
-            Thread.sleep(1000);
-        } catch(InterruptedException e) {
-            System.out.println("MAIN INTERRUPTED");
+        UnsafeCopier unsafeCopier = new UnsafeCopier(introduction);
+        Thread[] monkeysThreds = new Thread[5];
+        for (int i = 0; i < monkeysThreds.length; i++) {
+            monkeysThreds[i] = new Thread(unsafeCopier);
+            monkeysThreds[i].start();
         }
 
+        try {
+            for (Thread monkey : monkeysThreds) {
+                monkey.join();
+            }
+        } catch (InterruptedException e) {
+            System.out.println("MONKEY INTERRUPTED");
+        }
+
+        SafeCopier safeCopier = new SafeCopier(introduction);
+        Thread[] safeMonkeys = new Thread[5];
+        for (int i = 0; i < safeMonkeys.length; i++) {
+            safeMonkeys[i] = new Thread(safeCopier);
+            safeMonkeys[i].start();
+        }
+        try {
+
+            for (Thread monkey : safeMonkeys) {
+                monkey.join();
+            }
+        } catch (InterruptedException e) {
+            System.out.println("MONKEY INTERRUPTED");
+        }
+
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            System.out.println("MAIN INTERRUPTED");
+        }
+        System.out.println("unsafeCopier");
+        System.out.println(unsafeCopier.copied);
         // Print out the copied versions here.
+
+        System.out.println("safeCopier************************************************************");
+        System.out.println(safeCopier.copied);
     }
 }
